@@ -1,6 +1,6 @@
 import "./libs/weapp-adapter"
 import "./libs/symbol"
 
-import Main from "./player/main.js"
+import Main from "./main/main.js"
 
 new Main()
