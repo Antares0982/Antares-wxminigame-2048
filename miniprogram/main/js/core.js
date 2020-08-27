@@ -4,7 +4,7 @@ function generateRand(n) {
 
 export default class Core{
     
-    constructor(){
+    constructor(isholdgame, highestscore){
         this._2048array = [[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]]
         this._2048column = [[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]]
         this._2048boolean = [[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]]
@@ -14,7 +14,10 @@ export default class Core{
         this._formalboolean = [[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]]
         this._formalcolumnboolean = [[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]]
         this.lose = false
+        this.highestscore = highestscore
         this.score = 0
+        this.holdgame = isholdgame
+        this.confirmDead = false
     }
     
     savelastmove() {
@@ -28,10 +31,20 @@ export default class Core{
         }
     }
 
+    isFull() {
+        for (var i = 0; i < 4; i++) {
+            for (var j = 0; j < 3; j++) {
+                if (!this._2048boolean[i][j]) return false
+            }
+        }
+        return true
+    }
+
     isGameOver() {
         for (var i = 0; i < 4; i++) {
-            for (var j = 0; j < 4; j++) {
-                if (this._2048boolean[i][j] == 0) return false
+            for (var j = 0; j < 3; j++) {
+                if (this._2048array[i][j] == this._2048array[i][j+1]) return false
+                if (this._2048column[i][j] == this._2048column[i][j+1]) return false
             }
         }
         return true
@@ -179,9 +192,11 @@ export default class Core{
                 this._2048columnboolean[j][i] = 1
                 this._2048column[j][i] = _rand
                 this.score += _rand
+                if(this.score > this.highestscore){
+                    this.highestscore = this.score
+                }
                 break
             }
         }
     }
-
 }

@@ -13,28 +13,35 @@ const coordinateY = [windowHeight / 2 - 12 * thinreclength / 5 - 2 * gridWidth, 
 
 export default class Animation{
     constructor(){
-        this.core = new Core()
+        this.core = new Core(false, 0)
         this.draw = new Draw()
     }
     
     drawNum(i, j, biasx, biasy, boolformal) {
         this.draw.ctx.beginPath();
-        this.draw.ctx.fillStyle = "#000000";
-        this.draw.ctx.textAlign = "center";
+        this.draw.ctx.textAlign = "center"
         this.draw.ctx.textBaseline = "middle"//得写在font之前
-        this.draw.ctx.font = "bold 48px Arial";
+        this.draw.ctx.font = "bold 48px Arial"
         if (boolformal) {//boolformal为true，则绘制formal的矩阵中的数字，此时biasx, biasy代表它如何移动。boolformal为false时，应有biasx = biasy = 0
             this.draw.ctx.fillText(this.core._formalarray[i][j], coordinateX[j] + gridWidth / 2 + biasx, coordinateY[i] + gridWidth / 2 + biasy)
         }
         else {
             this.draw.ctx.fillText(this.core._2048array[i][j], coordinateX[j] + gridWidth / 2 + biasx, coordinateY[i] + gridWidth / 2 + biasy)
         }
-        this.draw.ctx.closePath();
-        this.draw.ctx.fillStyle = '#ffffff'
+        this.draw.ctx.closePath()
     }
  
+    drawscore(){
+        this.draw.ctx.beginPath()
+        this.draw.ctx.textAlign = "center"
+        this.draw.ctx.textBaseline = "middle"//得写在font之前
+        this.draw.ctx.font = "bold 24px Arial"
+        this.draw.ctx.fillText("得分："+String(this.core.score), windowWidth / 2, coordinateY[0] / 2)
+        this.draw.ctx.closePath()
+    }
+
     show2048matrix() {
-        this.draw.drawTable()
+        this.draw.drawTable()//会清除当前画布
         for (var i = 0; i < 4; i++) {
             for (var j = 0; j < 4; j++) {
                 if (this.core._2048boolean[i][j] == 1) {
@@ -43,6 +50,7 @@ export default class Animation{
                 }
             }
         }
+        this.drawscore()
     }
 
     howrightmoves(){
@@ -83,7 +91,7 @@ export default class Animation{
                 this.draw.drawTable()
                 for (var i = 0; i < 4; i++) {
                     for (var j = 3; j >= 0; j--) {
-                        if (this.core._formalboolean[i][j] == 1) {
+                        if (this.core._formalboolean[i][j]) {
                             this.draw.fillRoundRect(this.draw.ctx, coordinateX[j] + tt * movesteps[i][j] * (gridWidth + 5) / 31, coordinateY[i], gridWidth, gridWidth, windowWidth * 4 / 375, this.draw.num_color(this.core._formalarray[i][j]))
                             this.drawNum(i, j, tt * movesteps[i][j] * (gridWidth + 5) / 31, 0, true)
                         }
@@ -127,7 +135,7 @@ export default class Animation{
     }
 
     drawleftanimation(movesteps){
-        var tt = 0//到目前为止不输出动画
+        var tt = 0
         var interval = setInterval(() => {//开始做动画
             if (tt >= 32) {
                 clearInterval(interval)
@@ -186,7 +194,7 @@ export default class Animation{
     }
 
     drawupanimation(movesteps){
-        var tt = 0//到目前为止不输出动画
+        var tt = 0
         var interval = setInterval(() => {//开始做动画
             if (tt >= 32) {
                 clearInterval(interval)
@@ -245,7 +253,7 @@ export default class Animation{
     }
 
     drawdownanimation(movesteps){
-        var tt = 0//到目前为止不输出动画
+        var tt = 0
         var interval = setInterval(() => {//开始做动画
             if (tt >= 32) {
                 clearInterval(interval)
@@ -282,9 +290,11 @@ export default class Animation{
     }
 
     afteronestep() {
-        if (this.core.isGameOver()) {
-            console.log('game over')
-            this.core.lose = true
+        if (this.core.isFull()) {
+            if(this.core.isGameOver()){
+                this.core.lose = true
+            }
+            console.log('Full.')
         }
         else {
             this.core.addrandnum()
@@ -302,5 +312,7 @@ export default class Animation{
         }
     }
 
-    
+    redefineCore(){
+        this.core = new Core(true, this.core.highestscore)
+    }
 }
