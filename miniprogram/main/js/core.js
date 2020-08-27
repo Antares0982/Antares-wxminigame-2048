@@ -1,3 +1,7 @@
+function generateRand(n) {
+    return parseInt(n * Math.random())
+}
+
 export default class Core{
     
     constructor(){
@@ -9,6 +13,8 @@ export default class Core{
         this._formalcolumn = [[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]]
         this._formalboolean = [[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]]
         this._formalcolumnboolean = [[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]]
+        this.lose = false
+        this.score = 0
     }
     
     savelastmove() {
@@ -160,6 +166,22 @@ export default class Core{
             }
         }
         this.rewriterows()
+    }
+
+    addrandnum() {//向游戏矩阵添加一个新的数字
+        while (true) {
+            let i = generateRand(4)
+            let j = generateRand(4)
+            if (!this._2048boolean[i][j]) {
+                let _rand = 2 * generateRand(2) + 2
+                this._2048boolean[i][j] = 1
+                this._2048array[i][j] = _rand
+                this._2048columnboolean[j][i] = 1
+                this._2048column[j][i] = _rand
+                this.score += _rand
+                break
+            }
+        }
     }
 
 }

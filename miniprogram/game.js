@@ -3,4 +3,4 @@ import "./libs/symbol"
 
 import Main from "./main/main.js"
 
-new Main()
+var game = new Main()

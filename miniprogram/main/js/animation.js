@@ -9,9 +9,6 @@ const thinreclength = 5 //最好是5的倍数
 const coordinateX = [thinreclength, 2 * thinreclength + gridWidth, 3 * thinreclength + 2 * gridWidth, 4 * thinreclength + 3 * gridWidth]
 const coordinateY = [windowHeight / 2 - 12 * thinreclength / 5 - 2 * gridWidth, windowHeight / 2 - 7 * thinreclength / 5 - gridWidth, windowHeight / 2 - 2 * thinreclength / 5, windowHeight / 2 + 3 * thinreclength / 5 + gridWidth]
 
-function generateRand(n) {
-    return parseInt(n * Math.random())
-}
 
 
 export default class Animation{
@@ -19,7 +16,6 @@ export default class Animation{
         this.core = new Core()
         this.draw = new Draw()
     }
-
     
     drawNum(i, j, biasx, biasy, boolformal) {
         this.draw.ctx.beginPath();
@@ -37,7 +33,39 @@ export default class Animation{
         this.draw.ctx.fillStyle = '#ffffff'
     }
  
-    //drawrightmove()经过测试可以使用
+    show2048matrix() {
+        this.draw.drawTable()
+        for (var i = 0; i < 4; i++) {
+            for (var j = 0; j < 4; j++) {
+                if (this.core._2048boolean[i][j] == 1) {
+                    this.draw.fillRoundRect(this.draw.ctx, coordinateX[j], coordinateY[i], gridWidth, gridWidth, windowWidth * 4 / 375, this.draw.num_color(this.core._2048array[i][j]))
+                    this.drawNum(i, j, 0, 0, false)
+                }
+            }
+        }
+    }
+
+    howrightmoves(){
+        //要先找到哪些块往哪里移动，哪些块没有移动。用移动步数表示，没有移动的记为0.
+        var movesteps = [[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]]
+        for (var i = 0; i < 4; i++) {
+            for (var endstep = 3, j = 3; this.core._2048boolean[i][endstep]; endstep--) {
+                while (!this.core._formalboolean[i][j] && j > 0) { j-- }
+                if (this.core._formalarray[i][j] == this.core._2048array[i][endstep]) {
+                    movesteps[i][j] = endstep - j
+                    j--
+                }
+                else if (this.core._formalarray[i][j] * 2 == this.core._2048array[i][endstep]) {
+                    movesteps[i][j] = endstep - j
+                    j--
+                    while (!this.core._formalboolean[i][j] && j > 0) { j-- }
+                    movesteps[i][j] = endstep - j
+                    j--
+                }
+            }
+        }
+        return movesteps
+    }
 
     drawrightanimation(movesteps) {
         var tt = 0
@@ -67,24 +95,7 @@ export default class Animation{
     }
 
     drawrightmove() {
-        //要先找到哪些块往哪里移动，哪些块没有移动。用移动步数表示，没有移动的记为0.
-        var movesteps = [[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]]
-        for (var i = 0; i < 4; i++) {
-            for (var endstep = 3, j = 3; this.core._2048boolean[i][endstep]; endstep--) {
-                while (!this.core._formalboolean[i][j] && j > 0) { j-- }
-                if (this.core._formalarray[i][j] == this.core._2048array[i][endstep]) {
-                    movesteps[i][j] = endstep - j
-                    j--
-                }
-                else if (this.core._formalarray[i][j] * 2 == this.core._2048array[i][endstep]) {
-                    movesteps[i][j] = endstep - j
-                    j--
-                    while (!this.core._formalboolean[i][j] && j > 0) { j-- }
-                    movesteps[i][j] = endstep - j
-                    j--
-                }
-            }
-        }
+        var movesteps = this.howrightmoves()
         console.log('movestep is :')
         console.log(movesteps[0])
         console.log(movesteps[1])
@@ -93,8 +104,7 @@ export default class Animation{
         this.drawrightanimation(movesteps)
     }
 
-
-    drawleftmove() {
+    howleftmoves(){
         //要先找到哪些块往哪里移动，哪些块没有移动。用移动步数表示，没有移动的记为0.
         var movesteps = [[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]]
         for (var i = 0; i < 4; i++) {
@@ -113,11 +123,10 @@ export default class Animation{
                 }
             }
         }
-        console.log('movestep is :')
-        console.log(movesteps[0])
-        console.log(movesteps[1])
-        console.log(movesteps[2])
-        console.log(movesteps[3])
+        return movesteps
+    }
+
+    drawleftanimation(movesteps){
         var tt = 0//到目前为止不输出动画
         var interval = setInterval(() => {//开始做动画
             if (tt >= 32) {
@@ -144,7 +153,17 @@ export default class Animation{
         }, 10)
     }
 
-    drawupmove() {
+    drawleftmove() {
+        var movesteps = this.howleftmoves()
+        console.log('movestep is :')
+        console.log(movesteps[0])
+        console.log(movesteps[1])
+        console.log(movesteps[2])
+        console.log(movesteps[3])
+        this.drawleftanimation(movesteps)
+    }
+
+    howupmoves(){
         //要先找到哪些块往哪里移动，哪些块没有移动。用移动步数表示，没有移动的记为0.
         var movesteps = [[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]]
         for (var i = 0; i < 4; i++) {
@@ -163,11 +182,10 @@ export default class Animation{
                 }
             }
         }
-        console.log('movestep is :')
-        console.log(movesteps[0])
-        console.log(movesteps[1])
-        console.log(movesteps[2])
-        console.log(movesteps[3])
+        return movesteps
+    }
+
+    drawupanimation(movesteps){
         var tt = 0//到目前为止不输出动画
         var interval = setInterval(() => {//开始做动画
             if (tt >= 32) {
@@ -184,7 +202,6 @@ export default class Animation{
                 for (var i = 0; i < 4; i++) {
                     for (var j = 0; j < 4; j++) {
                         if (this.core._formalcolumnboolean[i][j] == 1) {
-
                             this.draw.fillRoundRect(this.draw.ctx, coordinateX[i], coordinateY[j] - tt * movesteps[i][j] * (gridWidth + 5) / 31, gridWidth, gridWidth, windowWidth * 4 / 375, this.draw.num_color(this.core._formalcolumn[i][j]))
                             this.drawNum(j, i, 0, - tt * movesteps[i][j] * (gridWidth + 5) / 31, true)
                         }
@@ -195,7 +212,17 @@ export default class Animation{
         }, 10)
     }
 
-    drawdownmove() {
+    drawupmove() {
+        var movesteps = this.howupmoves()
+        console.log('movestep is :')
+        console.log(movesteps[0])
+        console.log(movesteps[1])
+        console.log(movesteps[2])
+        console.log(movesteps[3])
+        this.drawupanimation(movesteps)
+    }
+
+    howdownmoves(){
         //要先找到哪些块往哪里移动，哪些块没有移动。用移动步数表示，没有移动的记为0.
         var movesteps = [[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]]
         for (var i = 0; i < 4; i++) {
@@ -214,11 +241,10 @@ export default class Animation{
                 }
             }
         }
-        console.log('movestep is :')
-        console.log(movesteps[0])
-        console.log(movesteps[1])
-        console.log(movesteps[2])
-        console.log(movesteps[3])
+        return movesteps
+    }
+
+    drawdownanimation(movesteps){
         var tt = 0//到目前为止不输出动画
         var interval = setInterval(() => {//开始做动画
             if (tt >= 32) {
@@ -245,25 +271,24 @@ export default class Animation{
         }, 10)
     }
 
-    show2048matrix() {
-        this.draw.drawTable()
-        for (var i = 0; i < 4; i++) {
-            for (var j = 0; j < 4; j++) {
-                if (this.core._2048boolean[i][j] == 1) {
-                    this.draw.fillRoundRect(this.draw.ctx, coordinateX[j], coordinateY[i], gridWidth, gridWidth, windowWidth * 4 / 375, this.draw.num_color(this.core._2048array[i][j]))
-                    this.drawNum(i, j, 0, 0, false)
-                }
-            }
-        }
+    drawdownmove() {
+        var movesteps = this.howdownmoves()
+        console.log('movestep is :')
+        console.log(movesteps[0])
+        console.log(movesteps[1])
+        console.log(movesteps[2])
+        console.log(movesteps[3])
+        this.drawdownanimation(movesteps)
     }
 
-    
     afteronestep() {
         if (this.core.isGameOver()) {
             console.log('game over')
+            this.core.lose = true
         }
         else {
-            this.addrandnum()
+            this.core.addrandnum()
+            this.show2048matrix()
             console.log('the matrix is :')
             console.log(this.core._2048array[0])
             console.log(this.core._2048array[1])
@@ -278,20 +303,4 @@ export default class Animation{
     }
 
     
-    addrandnum() {
-        while (true) {
-            var i = generateRand(4)
-            var j = generateRand(4)
-            var _rand = 2 * generateRand(2) + 2
-            if (this.core._2048boolean[i][j] == 0) {
-                this.core._2048boolean[i][j] = 1
-                this.core._2048array[i][j] = _rand
-                this.core._2048columnboolean[j][i] = 1
-                this.core._2048column[j][i] = _rand
-                break
-            }
-        }
-        this.show2048matrix()
-    }
-
 }

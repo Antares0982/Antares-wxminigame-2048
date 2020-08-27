@@ -94,8 +94,15 @@ export default class Drawer extends Sprite {
         return color;
     }
 
-    
-
-    
-    
+    gameoverpic(){
+        this.ctx.clearRect(0, 0, windowWidth, windowHeight)
+        this.ctx.beginPath();
+        this.ctx.fillStyle = "#000000";
+        this.ctx.textAlign = "center";
+        this.ctx.textBaseline = "middle"//得写在font之前
+        this.ctx.font = "bold 60px Arial";
+        this.ctx.fillText("game over!", coordinateX[j] + gridWidth / 2 + biasx, coordinateY[i] + gridWidth / 2 + biasy)
+        this.ctx.closePath();
+        this.ctx.fillStyle = "#ffffff"
+    }
 }
