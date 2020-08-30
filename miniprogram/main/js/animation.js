@@ -13,7 +13,7 @@ const coordinateY = [windowHeight / 2 - 12 * thinreclength / 5 - 2 * gridWidth, 
 
 export default class Animation{
     constructor(){
-        this.core = new Core(false, 0)
+        this.core = new Core(4, 0)
         this.draw = new Draw()
     }
     
@@ -42,9 +42,9 @@ export default class Animation{
 
     show2048matrix() {
         this.draw.drawTable()//会清除当前画布
-        for (var i = 0; i < 4; i++) {
-            for (var j = 0; j < 4; j++) {
-                if (this.core._2048boolean[i][j] == 1) {
+        for (var i = 0; i < this.core._2048dimension; i++) {
+            for (var j = 0; j < this.core._2048dimension; j++) {
+                if (this.core._2048boolean[i][j]) {
                     this.draw.fillRoundRect(this.draw.ctx, coordinateX[j], coordinateY[i], gridWidth, gridWidth, windowWidth * 4 / 375, this.draw.num_color(this.core._2048array[i][j]))
                     this.drawNum(i, j, 0, 0, false)
                 }
@@ -84,7 +84,7 @@ export default class Animation{
             }
             tt++
             if (tt == 32) {
-                this.afteronestep()
+                this.afteronestep(movesteps)
                 return
             }
             else {
@@ -104,7 +104,7 @@ export default class Animation{
 
     drawrightmove() {
         var movesteps = this.howrightmoves()
-        console.log('movestep is :')
+        console.log('movesteps is :')
         console.log(movesteps[0])
         console.log(movesteps[1])
         console.log(movesteps[2])
@@ -143,7 +143,7 @@ export default class Animation{
             }
             tt++
             if (tt == 32) {
-                this.afteronestep()
+                this.afteronestep(movesteps)
                 return
             }
             else {
@@ -163,7 +163,7 @@ export default class Animation{
 
     drawleftmove() {
         var movesteps = this.howleftmoves()
-        console.log('movestep is :')
+        console.log('movesteps is :')
         console.log(movesteps[0])
         console.log(movesteps[1])
         console.log(movesteps[2])
@@ -202,7 +202,7 @@ export default class Animation{
             }
             tt++
             if (tt == 32) {
-                this.afteronestep()
+                this.afteronestep(movesteps)
                 return
             }
             else {
@@ -222,7 +222,7 @@ export default class Animation{
 
     drawupmove() {
         var movesteps = this.howupmoves()
-        console.log('movestep is :')
+        console.log('movesteps is :')
         console.log(movesteps[0])
         console.log(movesteps[1])
         console.log(movesteps[2])
@@ -261,7 +261,7 @@ export default class Animation{
             }
             tt++
             if (tt == 32) {
-                this.afteronestep()
+                this.afteronestep(movesteps)
                 return
             }
             else {
@@ -281,7 +281,7 @@ export default class Animation{
 
     drawdownmove() {
         var movesteps = this.howdownmoves()
-        console.log('movestep is :')
+        console.log('movesteps is :')
         console.log(movesteps[0])
         console.log(movesteps[1])
         console.log(movesteps[2])
@@ -289,30 +289,43 @@ export default class Animation{
         this.drawdownanimation(movesteps)
     }
 
-    afteronestep() {
+//这部分与游戏结束逻辑有关
+
+    afteronestep(movesteps) {
         if (this.core.isFull()) {
-            if(this.core.isGameOver()){
-                this.core.lose = true
-            }
             console.log('Full.')
+            if(this.core.isCantMove(movesteps)){
+                this.core.holdgame = true
+                this.draw.gameoverpic()
+                this.draw.drawbutton(false)
+                console.log('gameover.')
+            }
         }
         else {
-            this.core.addrandnum()
-            this.show2048matrix()
-            console.log('the matrix is :')
-            console.log(this.core._2048array[0])
-            console.log(this.core._2048array[1])
-            console.log(this.core._2048array[2])
-            console.log(this.core._2048array[3])
-            console.log('this columns :')
-            console.log(this.core._2048column[0])
-            console.log(this.core._2048column[1])
-            console.log(this.core._2048column[2])
-            console.log(this.core._2048column[3])
+            if(!this.core.isCantMove(movesteps)){
+                this.core.addrandnum()
+                this.show2048matrix()
+                console.log('the matrix is :')
+                console.log(this.core._2048array[0])
+                console.log(this.core._2048array[1])
+                console.log(this.core._2048array[2])
+                console.log(this.core._2048array[3])
+                console.log('this columns :')
+                console.log(this.core._2048column[0])
+                console.log(this.core._2048column[1])
+                console.log(this.core._2048column[2])
+                console.log(this.core._2048column[3])
+            }
+            else{
+                this.drawscore()
+                console.log('not moving.')
+            }
+            
         }
     }
 
     redefineCore(){
-        this.core = new Core(true, this.core.highestscore)
+        this.core = new Core(4, this.core.highestscore)
+        this.core.addrandnum()
     }
 }

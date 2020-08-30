@@ -2,27 +2,34 @@ function generateRand(n) {
     return parseInt(n * Math.random())
 }
 
+function matrix(m) {
+    var result = []
+    for(var i = 0; i < m; i++) {
+        result.push(new Array(m).fill(0))
+    }
+    return result
+}
+
 export default class Core{
     
-    constructor(isholdgame, highestscore){
-        this._2048array = [[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]]
-        this._2048column = [[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]]
-        this._2048boolean = [[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]]
-        this._2048columnboolean = [[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]]
-        this._formalarray = [[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]]
-        this._formalcolumn = [[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]]
-        this._formalboolean = [[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]]
-        this._formalcolumnboolean = [[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]]
-        this.lose = false
+    constructor(dim, highestscore){
+        this._2048dimension = dim
+        this._2048array = matrix(this._2048dimension)
+        this._2048column = matrix(this._2048dimension)
+        this._2048boolean = matrix(this._2048dimension)
+        this._2048columnboolean = matrix(this._2048dimension)
+        this._formalarray = matrix(this._2048dimension)
+        this._formalcolumn = matrix(this._2048dimension)
+        this._formalboolean = matrix(this._2048dimension)
+        this._formalcolumnboolean = matrix(this._2048dimension)
         this.highestscore = highestscore
         this.score = 0
-        this.holdgame = isholdgame
-        this.confirmDead = false
+        this.holdgame = false
     }
     
     savelastmove() {
-        for (var i = 0; i < 4; i++) {
-            for (var j = 0; j < 4; j++) {
+        for (var i = 0; i < this._2048dimension; i++) {
+            for (var j = 0; j < this._2048dimension; j++) {
                 this._formalarray[i][j] = this._2048array[i][j]
                 this._formalboolean[i][j] = this._2048boolean[i][j]
                 this._formalcolumn[i][j] = this._2048column[i][j]
@@ -31,28 +38,27 @@ export default class Core{
         }
     }
 
-    isFull() {
-        for (var i = 0; i < 4; i++) {
-            for (var j = 0; j < 3; j++) {
+    isFull() {//与游戏结束的逻辑有关，要结合isCantMove()来判断游戏是否结束
+        for (var i = 0; i < this._2048dimension; i++) {
+            for (var j = 0; j < this._2048dimension; j++) {
                 if (!this._2048boolean[i][j]) return false
             }
         }
         return true
     }
 
-    isGameOver() {
-        for (var i = 0; i < 4; i++) {
-            for (var j = 0; j < 3; j++) {
-                if (this._2048array[i][j] == this._2048array[i][j+1]) return false
-                if (this._2048column[i][j] == this._2048column[i][j+1]) return false
+    isCantMove(movesteps) {//这个函数不仅判断是否能进行下一步添加随机数，同时还判断矩阵满了的情况下游戏是否结束
+        for(var i = 0; i < this._2048dimension; i++){
+            for(var j = 0; j < this._2048dimension; j++){
+                if(movesteps[i][j]) return false
             }
         }
         return true
     }
 
     rewritecolumns() {//写入行后按照行的情况写入列
-        for (var i = 0; i < 4; i++) {
-            for (var j = 0; j < 4; j++) {
+        for (var i = 0; i < this._2048dimension; i++) {
+            for (var j = 0; j < this._2048dimension; j++) {
                 this._2048column[i][j] = this._2048array[j][i]
                 this._2048columnboolean[i][j] = this._2048boolean[j][i]
             }
@@ -60,8 +66,8 @@ export default class Core{
     }
 
     rewriterows() {//写入列后按照行的情况写入行
-        for (var i = 0; i < 4; i++) {
-            for (var j = 0; j < 4; j++) {
+        for (var i = 0; i < this._2048dimension; i++) {
+            for (var j = 0; j < this._2048dimension; j++) {
                 this._2048array[i][j] = this._2048column[j][i]
                 this._2048boolean[i][j] = this._2048columnboolean[j][i]
             }
@@ -69,9 +75,9 @@ export default class Core{
     }
 
     moveright() {
-        for (var i = 0; i < 4; i++) {
-            for (var j = 0; j < 3; j++) {
-                for (var k = 2; k >= 0; k--) {
+        for (var i = 0; i < this._2048dimension; i++) {
+            for (var j = 0; j < this._2048dimension - 1; j++) {
+                for (var k = this._2048dimension - 2; k >= 0; k--) {
                     if (!this._2048boolean[i][k + 1] && this._2048boolean[i][k]) {
                         this._2048boolean[i][k + 1] = 1
                         this._2048boolean[i][k] = 0
@@ -80,7 +86,7 @@ export default class Core{
                     }
                 }
             }
-            for (var j = 3; j > 0; j--) {
+            for (var j = this._2048dimension - 1; j > 0; j--) {
                 if (this._2048array[i][j] == this._2048array[i][j - 1] && this._2048boolean[i][j]) {
                     this._2048array[i][j] *= 2
                     this._2048array[i][j - 1] = 0
@@ -97,9 +103,9 @@ export default class Core{
     }
 
     moveleft() {
-        for (var i = 0; i < 4; i++) {
-            for (var j = 0; j < 3; j++) {
-                for (var k = 1; k < 4; k++) {
+        for (var i = 0; i < this._2048dimension; i++) {
+            for (var j = 0; j < this._2048dimension - 1; j++) {
+                for (var k = 1; k < this._2048dimension; k++) {
                     if (!this._2048boolean[i][k - 1] && this._2048boolean[i][k]) {
                         this._2048boolean[i][k - 1] = 1
                         this._2048boolean[i][k] = 0
@@ -108,16 +114,16 @@ export default class Core{
                     }
                 }
             }
-            for (var j = 0; j < 3; j++) {
+            for (var j = 0; j < this._2048dimension - 1; j++) {
                 if (this._2048array[i][j] == this._2048array[i][j + 1] && this._2048boolean[i][j]) {
                     this._2048array[i][j] *= 2
                     this._2048array[i][j + 1] = 0
                     this._2048boolean[i][j + 1] = 0
-                    for (var k = j + 1; k < 3; k++) {
+                    for (var k = j + 1; k < this._2048dimension - 1; k++) {
                         this._2048array[i][k] = this._2048array[i][k + 1]
                         this._2048boolean[i][k] = this._2048boolean[i][k + 1]
                     }
-                    this._2048array[i][3] = this._2048boolean[i][3] = 0
+                    this._2048array[i][this._2048dimension - 1] = this._2048boolean[i][this._2048dimension - 1] = 0
                 }
             }
         }
@@ -126,9 +132,9 @@ export default class Core{
 
 
     moveup() {
-        for (var i = 0; i < 4; i++) {
-            for (var j = 0; j < 3; j++) {
-                for (var k = 1; k < 4; k++) {
+        for (var i = 0; i < this._2048dimension; i++) {
+            for (var j = 0; j < this._2048dimension - 1; j++) {
+                for (var k = 1; k < this._2048dimension; k++) {
                     if (!this._2048columnboolean[i][k - 1] && this._2048columnboolean[i][k]) {
                         this._2048columnboolean[i][k - 1] = 1
                         this._2048columnboolean[i][k] = 0
@@ -137,16 +143,16 @@ export default class Core{
                     }
                 }
             }
-            for (var j = 0; j < 3; j++) {
+            for (var j = 0; j < this._2048dimension - 1; j++) {
                 if (this._2048column[i][j] == this._2048column[i][j + 1] && this._2048columnboolean[i][j]) {
                     this._2048column[i][j] *= 2
                     this._2048column[i][j + 1] = 0
                     this._2048columnboolean[i][j + 1] = 0
-                    for (var k = j + 1; k < 3; k++) {
+                    for (var k = j + 1; k < this._2048dimension - 1; k++) {
                         this._2048column[i][k] = this._2048column[i][k + 1]
                         this._2048columnboolean[i][k] = this._2048columnboolean[i][k + 1]
                     }
-                    this._2048column[i][3] = this._2048columnboolean[i][3] = 0
+                    this._2048column[i][this._2048dimension - 1] = this._2048columnboolean[i][this._2048dimension - 1] = 0
                 }
             }
         }
@@ -154,9 +160,9 @@ export default class Core{
     }
     
     movedown() {
-        for (var i = 0; i < 4; i++) {
-            for (var j = 0; j < 3; j++) {
-                for (var k = 2; k >= 0; k--) {
+        for (var i = 0; i < this._2048dimension; i++) {
+            for (var j = 0; j < this._2048dimension - 1; j++) {
+                for (var k = this._2048dimension - 2; k >= 0; k--) {
                     if (!this._2048columnboolean[i][k + 1] && this._2048columnboolean[i][k]) {
                         this._2048columnboolean[i][k + 1] = 1
                         this._2048columnboolean[i][k] = 0
@@ -165,7 +171,7 @@ export default class Core{
                     }
                 }
             }
-            for (var j = 3; j > 0; j--) {
+            for (var j = this._2048dimension - 1; j > 0; j--) {
                 if (this._2048column[i][j] == this._2048column[i][j - 1] && this._2048columnboolean[i][j]) {
                     this._2048column[i][j] *= 2
                     this._2048column[i][j - 1] = 0
@@ -183,8 +189,8 @@ export default class Core{
 
     addrandnum() {//向游戏矩阵添加一个新的数字
         while (true) {
-            let i = generateRand(4)
-            let j = generateRand(4)
+            let i = generateRand(this._2048dimension)
+            let j = generateRand(this._2048dimension)
             if (!this._2048boolean[i][j]) {
                 let _rand = 2 * generateRand(2) + 2
                 this._2048boolean[i][j] = 1

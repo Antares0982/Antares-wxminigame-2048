@@ -11,13 +11,14 @@ export default class Main extends Animation{
         this.y = 0
         this.restartButtonPushed = false
         this.isProcessing = false
-        this.isProcessing2 = false
         this.initEvent()    //初始化事件监听
     }
     
     initEvent() {
         this.core.addrandnum()
-        this.show2048matrix()
+        setTimeout(() => {
+            this.show2048matrix()
+        }, 1000)
 
         canvas.addEventListener('touchstart', (e) => {
             e.preventDefault()
@@ -37,7 +38,7 @@ export default class Main extends Animation{
             e.preventDefault()
             let xx = e.changedTouches[0].clientX
             let yy = e.changedTouches[0].clientY
-            if(!this.core.lose && !this.core.holdgame && !this.isProcessing){
+            if(!this.core.holdgame && !this.isProcessing){
                 this.isProcessing = true
                 setTimeout(()=>{
                     this.isProcessing = false
@@ -87,40 +88,20 @@ export default class Main extends Animation{
                     this.drawdownmove()
                 }
             }
-            if(!this.isProcessing2){
-                this.isProcessing2 = true
+            else if(!this.isProcessing){
+                this.isProcessing = true
                 setTimeout(()=>{
-                    this.isProcessing2 = false
+                    this.isProcessing = false
                 }, 300)
-                setTimeout(()=>{
-                    if((this.core.isGameOver() || this.core.holdgame)){
-                        if(this.core.isGameOver()){
-                            if(this.core.confirmDead){
-                                this.draw.gameoverpic()
-                            this.draw.drawbutton(false)
-                            this.redefineCore()
-                            }
-                            else{
-                                this.core.confirmDead = true
-                            }
-                            
-                        }
-                        else if(this.core.holdgame){
-                            if(windowWidth / 2 - gridWidth < xx && xx < windowWidth / 2 + gridWidth && 3 * windowHeight / 4 - gridWidth / 2 < yy && yy < 3 * windowHeight / 4 + gridWidth / 2){
-                                console.log(windowWidth / 2 - gridWidth)
-                                console.log("xx=", xx)
-                                console.log(windowWidth / 2 + gridWidth)
-                                console.log(3 * windowHeight / 4 - gridWidth / 2)
-                                console.log(3 * windowHeight / 4 + gridWidth / 2)
-                                console.log("yy=", yy)
-                                this.core.holdgame = false
-                                this.core.addrandnum()
-                                console.log("restarting, showing new matrix now.")
-                                this.show2048matrix()
-                            }
-                        }
-                    }
-                },500)
+                if(windowWidth / 2 - gridWidth < xx && xx < windowWidth / 2 + gridWidth && 3 * windowHeight / 4 - gridWidth / 2 < yy && yy < 3 * windowHeight / 4 + gridWidth / 2){
+                    this.core.holdgame = false
+                    this.redefineCore()
+                    console.log("restarting, showing new matrix now.")
+                    this.show2048matrix()
+                }
+                else{
+                    this.draw.drawbutton(false)
+                }
             }
         })
     }

@@ -30,7 +30,7 @@
 	"compileType": "game",
 	"libVersion": "2.2.5",
 	"appid": "wx205fcac4aa37f330",
-	"projectname": "minigame-3",
+	"projectname": "wxminigame-2048",
 	"miniprogramRoot": "miniprogram/",
 	"cloudfunctionRoot": "cloudfunction/",
 	"simulatorType": "wechat",
